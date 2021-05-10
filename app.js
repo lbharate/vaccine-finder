@@ -2,7 +2,11 @@ const notifier = require('node-notifier');
 const request = require('request');
 const schedule = require('node-schedule');
 
+// Put your area pincodes here
 const pincodes = ['411014', '411028', '411036', '411006', '411013', '412307']
+
+// Number of additional weeks for which you want to check for availability
+const WEEKS = 1 // lets check only for current week
 
 var getDate = function (date) {
     return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear()
@@ -11,14 +15,14 @@ var getDate = function (date) {
 var getDates = function () {
     let weekDates = []
     weekDates.push(getDate(new Date))
-    for (let i = 1; i < 3; i++) {
+    for (let i = 1; i < WEEKS; i++) {
         let date = new Date((new Date).getTime() + (i * 7 * 24 * 60 * 60 * 1000));
         weekDates.push(getDate(date))
     }
     return weekDates
 }
 
-var getVaccineData = function () { //NOSONAR
+var getVaccineData = function () {
     var promises = []
     var dates = getDates()
 
