@@ -2,7 +2,7 @@ const notifier = require('node-notifier');
 const request = require('request');
 const schedule = require('node-schedule');
 
-const pincodes = ['411014', '411028', '411036', '411006']
+const pincodes = ['411014', '411028', '411036', '411006', '411013', '412307']
 
 var getDate = function (date) {
     return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear()
@@ -64,14 +64,16 @@ var notify = function (pincodeMap) {
 
 }
 
-const job = schedule.scheduleJob('* * * * *', function () {
-    console.log('\n<<--- Checking availability at ' + (new Date()).toString() + ' --->>')
+const executeBacth = function () {
     try {
         getVaccineData().then(body => {
             let pincodeMap = new Map()
             if (body) {
                 body.forEach(data => {
-                    data = JSON.parse(data)
+                    try { data = JSON.parse(data) } catch (err) {
+                        console.log(data);
+                        throw err
+                    }
                     if (data && data.centers && data.centers.length > 0) {
                         data.centers.forEach(center => {
                             if (center && center.sessions && center.sessions.length > 0) {
@@ -100,4 +102,18 @@ const job = schedule.scheduleJob('* * * * *', function () {
     } catch (error) {
         console.log(error);
     }
+}
+
+const job = schedule.scheduleJob('* * * * *', function () {
+    console.log('\n<<--- Checking availability at ' + (new Date()).toString() + ' --->>')
+    executeBacth()
+    setTimeout(() => {
+        executeBacth()
+    }, 15000)
+    setTimeout(() => {
+        executeBacth()
+    }, 30000)
+    setTimeout(() => {
+        executeBacth()
+    }, 45000)
 });
